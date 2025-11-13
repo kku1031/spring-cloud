@@ -1,0 +1,13 @@
+.gradle/
+bin/
+*.iml
+.idea/
+.vscode/
+*.log
+.DS_Store
+.git/
+.gitignore
+*.md
+docker-compose.yaml
+.dockerignore
+
