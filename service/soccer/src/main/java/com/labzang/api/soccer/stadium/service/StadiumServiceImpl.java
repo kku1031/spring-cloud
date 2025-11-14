@@ -2,7 +2,7 @@ package com.labzang.api.soccer.stadium.service;
 
 import java.util.List;
 
-import com.labzang.api.soccer.common.domain.Messenger;
+import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.stadium.domain.StadiumDTO;
 import com.labzang.api.soccer.stadium.repository.StadiumRepository;
 import lombok.RequiredArgsConstructor;

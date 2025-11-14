@@ -1,6 +1,6 @@
 package com.labzang.api.soccer.schedule.controller;
 
-import com.labzang.api.soccer.common.domain.Messenger;
+import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.schedule.domain.ScheduleDTO;
 import com.labzang.api.soccer.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;

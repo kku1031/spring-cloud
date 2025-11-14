@@ -1,6 +1,6 @@
 package com.labzang.api.soccer.team.service;
 
-import com.labzang.api.soccer.common.domain.Messenger;
+import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.team.domain.TeamDTO;
 import java.util.List;
 

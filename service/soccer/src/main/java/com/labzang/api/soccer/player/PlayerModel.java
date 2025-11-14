@@ -1,40 +1,23 @@
-package com.labzang.api.soccer.player.domain;
+package com.labzang.api.soccer.player;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import com.labzang.api.soccer.team.domain.Team;
+import lombok.*;
 
-@Entity
-@Table(name = "player")
+@Builder
 @Data
-public class Player {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@AllArgsConstructor
+@NoArgsConstructor
+public class PlayerModel {
     private Long playerId;
-
     private String playerName;
-
     private String ePlayerName;
-
     private String nickname;
-
     private String joinYyyy;
-
     private String position;
-
     private String backNo;
-
     private String nation;
-
     private String birthDate;
-
     private String solar;
-
     private String height;
-
     private String weight;
-
-    @ManyToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    private String teamId;
 }

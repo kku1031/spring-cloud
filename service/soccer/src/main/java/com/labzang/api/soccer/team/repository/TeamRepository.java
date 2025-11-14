@@ -1,61 +1,18 @@
 package com.labzang.api.soccer.team.repository;
 
-import com.labzang.api.soccer.common.domain.Messenger;
-import com.labzang.api.soccer.team.domain.TeamDTO;
+import com.labzang.api.soccer.team.domain.Team;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
 
 @Repository
-public class TeamRepository {
+public interface TeamRepository extends JpaRepository<Team, Long> {
     
-    public Messenger save(TeamDTO teamDTO) {
-        return Messenger.builder()
-                .code(200)
-                .message("success")
-                .build();
-    }
-
-    public Messenger update(TeamDTO teamDTO) {
-        return Messenger.builder()
-                .code(200)
-                .message("success")
-                .build();
-    }
-
-    public Messenger delete(String id) {
-        return Messenger.builder()
-                .code(200)
-                .message("success")
-                .build();
-    }
-
-    public Messenger findById(String id) {
-        return Messenger.builder()
-                .code(200)
-                .message("success")
-                .build();
-    }
-
-    public Messenger findAll() {
-        return Messenger.builder()
-                .code(200)
-                .message("success")
-                .build();
-    }
-
-    public Messenger saveAll(List<TeamDTO> teamDTOs) {
-        return Messenger.builder()
-                .code(200)
-                .message("success")
-                .build();
-    }
-
-    public Messenger findByKeyword(String keyword) {
-        System.out.println("=== TeamRepository: 검색어로 팀 검색 ===");
-        System.out.println("검색어: " + keyword);
-        return Messenger.builder()
-                .code(200)
-                .message("Team search by keyword: " + keyword)
-                .build();
+    // 키워드로 팀 검색 (이름, 영문이름으로 검색)
+    java.util.List<Team> findByTeamNameContainingOrETeamNameContaining(
+        String teamName, String eTeamName);
+    
+    // 간단한 키워드 검색을 위한 메서드
+    default java.util.List<Team> findByKeyword(String keyword) {
+        return findByTeamNameContainingOrETeamNameContaining(keyword, keyword);
     }
 }

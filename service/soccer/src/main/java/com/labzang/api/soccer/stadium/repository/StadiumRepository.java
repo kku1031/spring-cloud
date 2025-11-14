@@ -1,6 +1,6 @@
 package com.labzang.api.soccer.stadium.repository;
 
-import com.labzang.api.soccer.common.domain.Messenger;
+import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.stadium.domain.StadiumDTO;
 import org.springframework.stereotype.Repository;
 import java.util.List;

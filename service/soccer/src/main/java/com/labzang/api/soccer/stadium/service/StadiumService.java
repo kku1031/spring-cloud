@@ -1,6 +1,6 @@
 package com.labzang.api.soccer.stadium.service;
 
-import com.labzang.api.soccer.common.domain.Messenger;
+import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.stadium.domain.StadiumDTO;
 import java.util.List;
 

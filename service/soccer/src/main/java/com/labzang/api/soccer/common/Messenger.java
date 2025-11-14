@@ -1,4 +1,4 @@
-package com.labzang.api.soccer.common.domain;
+package com.labzang.api.soccer.common;
 
 import lombok.*;
 
@@ -11,4 +11,6 @@ public class Messenger {
     private Integer code;
     private String message;
     private Object data;
+    
 }
+

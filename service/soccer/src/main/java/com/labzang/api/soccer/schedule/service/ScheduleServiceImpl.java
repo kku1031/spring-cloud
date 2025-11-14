@@ -2,7 +2,7 @@ package com.labzang.api.soccer.schedule.service;
 
 import java.util.List;
 
-import com.labzang.api.soccer.common.domain.Messenger;
+import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.schedule.domain.ScheduleDTO;
 import com.labzang.api.soccer.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;

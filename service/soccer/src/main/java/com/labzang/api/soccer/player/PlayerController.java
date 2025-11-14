@@ -1,8 +1,7 @@
-package com.labzang.api.soccer.player.controller;
+package com.labzang.api.soccer.player;
 
-import com.labzang.api.soccer.common.domain.Messenger;
-import com.labzang.api.soccer.player.domain.PlayerDTO;
-import com.labzang.api.soccer.player.service.PlayerService;
+import com.labzang.api.soccer.common.Messenger;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,17 +14,18 @@ public class PlayerController {
     private final PlayerService playerService;
 
     @PostMapping("/save")
-    public ResponseEntity<Messenger> save(@RequestBody PlayerDTO playerDTO) {
+    public ResponseEntity<Messenger> save(@RequestBody PlayerModel playerDTO) {
         return ResponseEntity.ok(playerService.save(playerDTO));
     }
 
     @PostMapping("/all")
-    public ResponseEntity<Messenger> saveAll(@RequestBody List<PlayerDTO> playerDTOs) {
+    public ResponseEntity<Messenger> saveAll(@RequestBody List<PlayerModel> playerDTOs) {
         return ResponseEntity.ok(playerService.saveAll(playerDTOs));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Messenger> update(@PathVariable String id, @RequestBody PlayerDTO playerDTO) {
+    public ResponseEntity<Messenger> update(@PathVariable String id, @RequestBody PlayerModel playerDTO) {
+        playerDTO.setPlayerId(Long.parseLong(id));
         return ResponseEntity.ok(playerService.update(playerDTO));
     }
 

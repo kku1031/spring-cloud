@@ -1,6 +1,6 @@
 package com.labzang.api.soccer.schedule.service;
 
-import com.labzang.api.soccer.common.domain.Messenger;
+import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.schedule.domain.ScheduleDTO;
 import java.util.List;
 

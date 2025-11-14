@@ -1,6 +1,6 @@
 package com.labzang.api.soccer.team.controller;
 
-import com.labzang.api.soccer.common.domain.Messenger;
+import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.team.domain.TeamDTO;
 import com.labzang.api.soccer.team.service.TeamService;
 import lombok.RequiredArgsConstructor;
