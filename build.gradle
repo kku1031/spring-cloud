@@ -31,7 +31,7 @@ subprojects {
 	}
 	
 	dependencyManagement {
-		imports {
+		imports {		//그룹 ID : 아티팩트 ID
 			mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.0"
 		}
 	}

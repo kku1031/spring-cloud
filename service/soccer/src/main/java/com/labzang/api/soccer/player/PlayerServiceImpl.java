@@ -10,7 +10,9 @@ import com.labzang.api.soccer.common.Messenger;
 import com.labzang.api.soccer.team.repository.TeamRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -119,11 +121,23 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     @Transactional(readOnly = true)
     public Messenger findByKeyword(String keyword) {
+        log.info("========================================");
+        log.info("[PlayerServiceImpl] 검색 시작");
+        log.info("[PlayerServiceImpl] 입력받은 키워드: '{}'", keyword);
+        log.info("========================================");
+        
         List<Player> players = playerRepository.findByKeyword(keyword);
+        log.info("[PlayerServiceImpl] DB에서 조회된 선수 수: {}", players.size());
+        
         List<PlayerModel> playerModels = players.stream()
                 .map(this::toModel)
                 .collect(Collectors.toList());
 
+        log.info("[PlayerServiceImpl] 변환 완료 - 총 {} 명의 선수", playerModels.size());
+        if (!playerModels.isEmpty()) {
+            log.info("[PlayerServiceImpl] 첫 번째 결과: {}", playerModels.get(0).getPlayerName());
+        }
+        
         return Messenger.builder()
                 .code(200)
                 .message("Players found by keyword '" + keyword + "': " + playerModels.size())

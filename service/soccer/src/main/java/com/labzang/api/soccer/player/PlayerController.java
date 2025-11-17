@@ -3,10 +3,12 @@ package com.labzang.api.soccer.player;
 import com.labzang.api.soccer.common.Messenger;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/player")
@@ -42,5 +44,20 @@ public class PlayerController {
     @GetMapping("/all")
     public ResponseEntity<Messenger> findAll() {
         return ResponseEntity.ok(playerService.findAll());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Messenger> findByKeyword(@RequestParam String keyword) {
+        log.info("========================================");
+        log.info("[PlayerController] 검색 요청 받음");
+        log.info("[PlayerController] 검색어: {}", keyword);
+        log.info("========================================");
+        
+        Messenger result = playerService.findByKeyword(keyword);
+        
+        log.info("[PlayerController] 검색 완료 - 결과 코드: {}, 메시지: {}", 
+                 result.getCode(), result.getMessage());
+        
+        return ResponseEntity.ok(result);
     }
 }

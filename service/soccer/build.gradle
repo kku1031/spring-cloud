@@ -1,5 +1,5 @@
 bootJar.enabled = true
-jar.enabled = false
+jar.enabled = false //자식꺼를 안쓴다는 의미, 프로세스 흐름상 루트를 먼저씀, 루트를 쓰고 그다음에 자식. 상속 관계
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'

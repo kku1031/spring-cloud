@@ -3,6 +3,38 @@ spring:
     name: discovery
   config:
     import: ${SPRING_CONFIG_IMPORT:optional:configserver:http://config-server:8888}
+  cloud:
+    gateway:
+      routes:
+        # Search 라우팅 (우선순위 높음)
+        - id: search-service
+          uri: lb://SOCCER
+          predicates:
+            - Path=/api/search
+          filters:
+            - StripPrefix=1
+        # Soccer Service 라우팅
+        - id: soccer-service
+          uri: lb://SOCCER
+          predicates:
+            - Path=/api/soccer/**
+          filters:
+            - StripPrefix=2
+      # 글로벌 CORS 설정
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: 
+              - "http://localhost:3000"
+              - "http://my-next-app:3000"
+            allowedMethods: 
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "DELETE"
+              - "OPTIONS"
+            allowedHeaders: "*"
+            allowCredentials: true
 
 server:
   port: ${SERVER_PORT:8080}

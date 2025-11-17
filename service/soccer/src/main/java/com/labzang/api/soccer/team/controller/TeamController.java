@@ -44,4 +44,9 @@ public class TeamController {
     public ResponseEntity<Messenger> findAll() {
         return ResponseEntity.ok(teamService.findAll());
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Messenger> findByKeyword(@RequestParam String keyword) {
+        return ResponseEntity.ok(teamService.findByKeyword(keyword));
+    }
 }
