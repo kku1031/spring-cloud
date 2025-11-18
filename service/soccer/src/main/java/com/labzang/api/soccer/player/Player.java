@@ -8,7 +8,7 @@ import com.labzang.api.soccer.team.domain.Team;
 @Table(name = "player")
 @Data
 public class Player {
-    @Id
+    @Id // 기계가 임의로 부여한 ID -> 인조키 -> 아티펙트 아이디
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long playerId;
 

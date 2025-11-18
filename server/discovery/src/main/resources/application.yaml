@@ -8,7 +8,7 @@ spring:
       routes:
         # Search 라우팅 (우선순위 높음)
         - id: search-service
-          uri: lb://SOCCER
+          uri: lb://SOCCER #lb : 로드 벨런서, Load Balancer : 메모리에 올라간다, 마이크로 서비스가 활성화 된다.
           predicates:
             - Path=/api/search
           filters:
@@ -20,21 +20,26 @@ spring:
             - Path=/api/soccer/**
           filters:
             - StripPrefix=2
-      # 글로벌 CORS 설정
+      # 글로벌 CORS 설정 (API Gateway 레벨에서 중앙 집중식 처리)
       globalcors:
         corsConfigurations:
           '[/**]':
             allowedOrigins: 
-              - "http://localhost:3000"
-              - "http://my-next-app:3000"
+              - "http://localhost:3000"           # 로컬 개발 환경
+              - "http://my-next-app:3000"         # Docker 네트워크 내부
             allowedMethods: 
               - "GET"
               - "POST"
               - "PUT"
               - "DELETE"
+              - "PATCH"
               - "OPTIONS"
             allowedHeaders: "*"
+            exposedHeaders:                        # 클라이언트가 접근 가능한 헤더
+              - "Authorization"
+              - "Content-Type"
             allowCredentials: true
+            maxAge: 3600                           # Preflight 캐시 시간 (1시간)
 
 server:
   port: ${SERVER_PORT:8080}
