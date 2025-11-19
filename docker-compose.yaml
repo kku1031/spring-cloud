@@ -1,224 +1,174 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database
   postgres:
-    image: postgres:16-alpine
-    container_name: postgres-db
+    image: postgres:15-alpine
+    container_name: postgres
     environment:
-      - POSTGRES_DB=springdb
-      - POSTGRES_USER=springuser
-      - POSTGRES_PASSWORD=springpass
+      POSTGRES_DB: aidb
+      POSTGRES_USER: aiion
+      POSTGRES_PASSWORD: aiion4man
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - springnetwork
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U springuser -d springdb" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - spring-network
 
-  # Config Server
-  config-server:
+  eureka:
+    build:
+      context: .
+      dockerfile: ./server/eureka/Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - spring-network
+
+
+  config:
     build:
       context: .
       dockerfile: ./server/config/Dockerfile
     container_name: config-server
     ports:
       - "8888:8888"
+    depends_on:
+      - eureka
+    networks:
+      - spring-network
     environment:
       - SPRING_PROFILES_ACTIVE=native
-      - SERVER_PORT=8888
-      - HOSTNAME=config-server
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    networks:
-      - springnetwork
-    depends_on:
-      eureka-server:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
 
-  # Eureka Server
-  eureka-server:
-    build:
-      context: .
-      dockerfile: ./server/eureka/Dockerfile
-    container_name: eureka-server
-    ports:
-      - "8761:8761" #http: 라우터
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - EUREKA_INSTANCE_HOSTNAME=eureka-server
-    networks:
-      - springnetwork
-    healthcheck:
-      #기계에서 함
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # Discovery Gateway
-  discovery-server:
+  discovery:
     build:
       context: .
       dockerfile: ./server/discovery/Dockerfile
     container_name: discovery-server
     ports:
       - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SERVER_PORT=8080
-      - HOSTNAME=discovery-server
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
-    networks:
-      - springnetwork
     depends_on:
-      eureka-server:
-        condition: service_healthy
-      config-server:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Soccer Service
-  soccer-service:
-    build:
-      context: .
-      dockerfile: ./service/soccer/Dockerfile
-    container_name: soccer-service
-    ports:
-      - "8081:8081"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SERVER_PORT=8081
-      - HOSTNAME=soccer-service
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springdb
-      - SPRING_DATASOURCE_USERNAME=springuser
-      - SPRING_DATASOURCE_PASSWORD=springpass
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - eureka
     networks:
-      - springnetwork
-    depends_on:
-      postgres:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
-      config-server:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # User Service
-  user-service:
-    build:
-      context: .
-      dockerfile: ./service/user/Dockerfile
-    container_name: user-service
-    ports:
-      - "8082:8082"
+      - spring-network
     environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SERVER_PORT=8082
-      - HOSTNAME=user-service
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springdb
-      - SPRING_DATASOURCE_USERNAME=springuser
-      - SPRING_DATASOURCE_PASSWORD=springpass
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
-    networks:
-      - springnetwork
-    depends_on:
-      postgres:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
-      config-server:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY=DEBUG
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_LOADBALANCER=DEBUG
+      - LOGGING_LEVEL_REACTOR_NETTY=DEBUG
 
-  # Common Service
   common-service:
     build:
       context: .
-      dockerfile: ./service/common/Dockerfile
+      dockerfile: ./service/common-service/Dockerfile
     container_name: common-service
     ports:
-      - "8083:8083"
-    environment:
-      - SPRING_PROFILES_ACTIVE=default
-      - SERVER_PORT=8083
-      - HOSTNAME=common-service
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springdb
-      - SPRING_DATASOURCE_USERNAME=springuser
-      - SPRING_DATASOURCE_PASSWORD=springpass
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
-    networks:
-      - springnetwork
+      - "8081:8081"
     depends_on:
-      postgres:
-        condition: service_healthy
-      eureka-server:
-        condition: service_healthy
-      config-server:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - postgres
+      - eureka
+    networks:
+      - spring-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/aidb
+      - SPRING_DATASOURCE_USERNAME=aiion
+      - SPRING_DATASOURCE_PASSWORD=aiion4man
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
 
-  # Next.js Frontend
-  my-next-app:
+  user-service:
+    build:
+      context: .
+      dockerfile: ./service/user-service/Dockerfile
+    container_name: user-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - eureka
+    networks:
+      - spring-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/aidb
+      - SPRING_DATASOURCE_USERNAME=aiion
+      - SPRING_DATASOURCE_PASSWORD=aiion4man
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+
+  diary-service:
+    build:
+      context: .
+      dockerfile: ./service/diary-service/Dockerfile
+    container_name: diary-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+      - eureka
+    networks:
+      - spring-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/aidb
+      - SPRING_DATASOURCE_USERNAME=aiion
+      - SPRING_DATASOURCE_PASSWORD=aiion4man
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+
+  calendar-service:
+    build:
+      context: .
+      dockerfile: ./service/calendar-service/Dockerfile
+    container_name: calendar-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres
+      - eureka
+    networks:
+      - spring-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/aidb
+      - SPRING_DATASOURCE_USERNAME=aiion
+      - SPRING_DATASOURCE_PASSWORD=aiion4man
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+
+  soccer-service:
+    build:
+      context: .
+      dockerfile: ./service/soccer-service/Dockerfile
+    container_name: soccer-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - postgres
+      - eureka
+    networks:
+      - spring-network
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/aidb
+      - SPRING_DATASOURCE_USERNAME=aiion
+      - SPRING_DATASOURCE_PASSWORD=aiion4man
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+
+  nextjs:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: my-next-app
+    container_name: frontend
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://discovery-server:8080
       - NODE_ENV=production
+      - NEXT_PUBLIC_API_GATEWAY_URL=http://discovery:8080
+      - NEXT_PUBLIC_API_BASE_URL=http://discovery:8080
+      - NEXT_PUBLIC_EUREKA_URL=http://eureka:8761
+    restart: unless-stopped
     networks:
-      - springnetwork
+      - spring-network
     depends_on:
-      discovery-server:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - eureka
+      - discovery
 
 volumes:
-  postgres-data:
-
+  postgres_data:
 
 networks:
-  springnetwork:
-    name: springnetwork
-    driver: bridge #브릿지 패턴 : 
+  spring-network:
+    driver: bridge
+

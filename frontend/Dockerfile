@@ -1,35 +1,26 @@
-# Stage 1: Dependencies
+# 의존성 설치 단계
 FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Copy package files
+# 패키지 파일 복사
 COPY package.json pnpm-lock.yaml* ./
-
-# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Stage 2: Builder
+# 빌드 단계
 FROM node:20-alpine AS builder
+RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Copy dependencies from deps stage
+# 의존성 복사
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set environment variable for build
+# Next.js 빌드
 ENV NEXT_TELEMETRY_DISABLED 1
-
-# Build the application
 RUN pnpm build
 
-# Stage 3: Runner
+# 프로덕션 실행 단계
 FROM node:20-alpine AS runner
 WORKDIR /app
 
@@ -39,12 +30,10 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files from builder
-# Create public directory if it doesn't exist, then copy if it does
-RUN mkdir -p ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+# 빌드 결과물 복사
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
@@ -53,4 +42,5 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node_modules/.bin/next", "start"]
+CMD ["node", "server.js"]
+

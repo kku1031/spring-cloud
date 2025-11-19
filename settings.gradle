@@ -10,6 +10,8 @@ include 'server:eureka'
 // Service modules
 include 'service'
 project(':service').projectDir = file('service')
-include 'service:common'
-include 'service:soccer'
-include 'service:user'
+include 'service:common-service'
+include 'service:calendar-service'
+include 'service:diary-service'
+include 'service:soccer-service'
+include 'service:user-service'

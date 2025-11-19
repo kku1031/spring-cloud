@@ -1,14 +1,12 @@
-# Build stage
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# 빌드 단계
+FROM gradle:8.5-jdk21 AS builder
 WORKDIR /build
 COPY . .
-RUN chmod +x gradlew && ./gradlew :server:discovery:bootJar --no-daemon || exit 1
-RUN ls -la /build/server/discovery/build/libs/ || exit 1
-RUN cp /build/server/discovery/build/libs/*.jar /build/discovery-server.jar || exit 1
+RUN gradle :server:discovery:build -x test
 
-# Runtime stage
-FROM eclipse-temurin:21-jdk-alpine
+# 실행 단계 (slim 버전 사용)
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-VOLUME /tmp
-COPY --from=builder /build/discovery-server.jar /app/discovery-server.jar
-ENTRYPOINT ["java", "-jar", "/app/discovery-server.jar"]
+COPY --from=builder /build/server/discovery/build/libs/*.jar app.jar
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+

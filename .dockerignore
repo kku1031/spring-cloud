@@ -1,13 +1,42 @@
-.gradle/
-bin/
-*.iml
-.idea/
-.vscode/
-*.log
-.DS_Store
-.git/
+# Git
+.git
 .gitignore
-*.md
+.gitattributes
+
+# IDE
+.idea
+.vscode
+*.iml
+*.ipr
+*.iws
+.DS_Store
+
+# Build outputs
+build/
+.gradle/
+!gradle/wrapper/
+
+# Logs
+*.log
+logs/
+
+# Docker
 docker-compose.yaml
+Dockerfile
 .dockerignore
+
+# Documentation
+README.md
+*.md
+
+# Test files
+**/test/
+**/*Test.java
+**/*Tests.java
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
 

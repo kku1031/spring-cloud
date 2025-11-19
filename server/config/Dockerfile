@@ -1,14 +1,11 @@
-# Build stage
-FROM eclipse-temurin:21-jdk-alpine AS builder
+# 빌드 단계
+FROM gradle:8.5-jdk21 AS builder
 WORKDIR /build
 COPY . .
-RUN chmod +x gradlew && ./gradlew :server:config:bootJar --no-daemon || exit 1
-RUN ls -la /build/server/config/build/libs/ || exit 1
-RUN cp /build/server/config/build/libs/*.jar /build/config-server.jar || exit 1
+RUN gradle :server:config:build -x test
 
-# Runtime stage
-FROM eclipse-temurin:21-jdk-alpine
+# 실행 단계 (slim 버전 사용)
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-VOLUME /tmp
-COPY --from=builder /build/config-server.jar /app/config-server.jar
-ENTRYPOINT ["java", "-jar", "/app/config-server.jar"]
+COPY --from=builder /build/server/config/build/libs/*.jar app.jar
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
