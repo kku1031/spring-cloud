@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '../atoms';
 import { PathfinderView as PathfinderViewType } from '../types';
+import { useAppStore } from '@/store/useAppStore';
 
-interface PathfinderViewProps {
-  pathfinderView: PathfinderViewType;
-  setPathfinderView: (view: PathfinderViewType) => void;
-  darkMode?: boolean;
-}
-
-export const PathfinderView: React.FC<PathfinderViewProps> = ({
-  pathfinderView,
-  setPathfinderView,
-  darkMode = false,
-}) => {
+export const PathfinderView: React.FC = () => {
+  // Zustand 스토어에서 직접 구독
+  const pathfinderView = useAppStore((state) => state.ui.pathfinderView);
+  const setPathfinderView = useAppStore((state) => state.ui.setPathfinderView);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
   // Home 뷰
   if (pathfinderView === 'home') {
     return (

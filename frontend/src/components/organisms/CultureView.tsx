@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '../atoms';
 import { CultureView as CultureViewType } from '../types';
+import { useAppStore } from '@/store/useAppStore';
 
-interface CultureViewProps {
-  cultureView: CultureViewType;
-  setCultureView: (view: CultureViewType) => void;
-  darkMode?: boolean;
-}
-
-export const CultureView: React.FC<CultureViewProps> = ({
-  cultureView,
-  setCultureView,
-  darkMode = false,
-}) => {
+export const CultureView: React.FC = () => {
+  // Zustand 스토어에서 직접 구독
+  const cultureView = useAppStore((state) => state.ui.cultureView);
+  const setCultureView = useAppStore((state) => state.ui.setCultureView);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
   const [selectedWishCategory, setSelectedWishCategory] = useState<'travel' | 'movie' | 'performance'>('travel');
 
   // Home 뷰

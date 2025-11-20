@@ -1,5 +1,8 @@
 import { create } from "zustand";
 import { AppStore } from "./types";
+import { createUiSlice } from "./slices/uiSlice";
+import { createChatSlice } from "./slices/chatSlice";
+import { createCalendarSlice } from "./slices/calendarSlice";
 
 /**
  * 단일 Zustand 스토어 (슬라이스 패턴 적용)
@@ -12,17 +15,27 @@ import { AppStore } from "./types";
  * - 컴포넌트에서 선택적 구독으로 사용
  * 
  * 예시:
- * const data = useAppStore((state) => state.agent1.data);
- * const fetchData = useAppStore((state) => state.agent1.fetchData);
+ * const sidebarOpen = useAppStore((state) => state.ui.sidebarOpen);
+ * const setSidebarOpen = useAppStore((state) => state.ui.setSidebarOpen);
+ * const interactions = useAppStore((state) => state.chat.interactions);
  */
 export const useAppStore = create<AppStore>()((...a) => ({
+  // UI 상태 슬라이스
+  ui: createUiSlice(...a),
+
+  // 채팅 관련 슬라이스
+  chat: createChatSlice(...a),
+
+  // 캘린더 관련 슬라이스
+  calendar: createCalendarSlice(...a),
+
   // TODO: AI 에이전트 슬라이스들 (5개)
   // agent1: createAgent1Slice(...a),
   // agent2: createAgent2Slice(...a),
   // agent3: createAgent3Slice(...a),
   // agent4: createAgent4Slice(...a),
   // agent5: createAgent5Slice(...a),
-  
+
   // TODO: 마이크로서비스 슬라이스들 (7개)
   // service1: createService1Slice(...a),
   // service2: createService2Slice(...a),

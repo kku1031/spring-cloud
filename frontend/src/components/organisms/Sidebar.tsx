@@ -2,30 +2,24 @@ import React, { useRef, memo } from 'react';
 import { Icon } from '../atoms';
 import { Toggle } from '../atoms';
 import { MenuItem, Category } from '../types';
+import { useAppStore } from '@/store/useAppStore';
 
 interface SidebarProps {
-  sidebarOpen: boolean;
-  setSidebarOpen: (open: boolean) => void;
-  darkMode: boolean;
-  setDarkMode: (dark: boolean) => void;
-  currentCategory: Category;
-  setCurrentCategory: (category: Category) => void;
   menuItems: MenuItem[];
-  isDragging: boolean;
-  setIsDragging: (dragging: boolean) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = memo(({
-  sidebarOpen,
-  setSidebarOpen,
-  darkMode,
-  setDarkMode,
-  currentCategory,
-  setCurrentCategory,
   menuItems,
-  isDragging,
-  setIsDragging,
 }) => {
+  // Zustand 스토어에서 직접 구독
+  const sidebarOpen = useAppStore((state) => state.ui.sidebarOpen);
+  const setSidebarOpen = useAppStore((state) => state.ui.setSidebarOpen);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
+  const setDarkMode = useAppStore((state) => state.ui.setDarkMode);
+  const currentCategory = useAppStore((state) => state.ui.currentCategory);
+  const setCurrentCategory = useAppStore((state) => state.ui.setCurrentCategory);
+  const isDragging = useAppStore((state) => state.ui.isDragging);
+  const setIsDragging = useAppStore((state) => state.ui.setIsDragging);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const handleSidebarDrag = (e: React.MouseEvent) => {

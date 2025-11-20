@@ -1,44 +1,35 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import {
   Interaction,
-  Category,
   SpeechRecognition,
-  DiaryView as DiaryViewType,
-  AccountView as AccountViewType,
-  CultureView as CultureViewType,
-  HealthView as HealthViewType,
-  PathfinderView as PathfinderViewType,
-  Event,
-  Task,
-} from '../../components/types';
-import { getLocalDateStr, extractCategories } from '../../lib';
+} from '@/components/types';
+import { getLocalDateStr, extractCategories } from '@/lib';
+import { useAppStore } from '@/store/useAppStore';
 
 export const useHomePage = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [inputText, setInputText] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [avatarMode, setAvatarMode] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [micAvailable, setMicAvailable] = useState(false);
+  // Zustand 스토어에서 상태 가져오기 (선택적 구독)
+  const chatState = useAppStore((state) => state.chat);
+  const uiState = useAppStore((state) => state.ui);
+
+  // Zustand 스토어에서 액션 가져오기
+  const chatActions = useAppStore((state) => ({
+    setInputText: state.chat.setInputText,
+    setLoading: state.chat.setLoading,
+    setAvatarMode: state.chat.setAvatarMode,
+    setIsListening: state.chat.setIsListening,
+    setMicAvailable: state.chat.setMicAvailable,
+    addInteraction: state.chat.addInteraction,
+    clearInputText: state.chat.clearInputText,
+  }));
+
+  const uiActions = useAppStore((state) => ({
+    setCurrentCategory: state.ui.setCurrentCategory,
+    resetCategoryViews: state.ui.resetCategoryViews,
+  }));
+
+  // 음성 인식 관련 ref (로직은 훅에 유지)
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [interactions, setInteractions] = useState<Interaction[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const [currentCategory, setCurrentCategory] = useState<Category>('home');
-
-  // 카테고리별 뷰 상태
-  const [diaryView, setDiaryView] = useState<DiaryViewType>('home');
-  const [accountView, setAccountView] = useState<AccountViewType>('home');
-  const [cultureView, setCultureView] = useState<CultureViewType>('home');
-  const [healthView, setHealthView] = useState<HealthViewType>('home');
-  const [pathfinderView, setPathfinderView] = useState<PathfinderViewType>('home');
-
-  // Calendar 관련 상태
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [events, setEvents] = useState<Event[]>([]);
-  const [todayTasks, setTodayTasks] = useState<Task[]>([]);
 
   const menuItems = [
     { id: 'home', label: 'Home', icon: '🏠' },
@@ -53,15 +44,15 @@ export const useHomePage = () => {
   // 마이크 권한 확인
   useEffect(() => {
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      setMicAvailable(true);
+      chatActions.setMicAvailable(true);
     } else if (typeof window !== 'undefined' && 'SpeechRecognition' in window) {
-      setMicAvailable(true);
+      chatActions.setMicAvailable(true);
     }
-  }, []);
+  }, [chatActions]);
 
   // 음성 인식 초기화
   useEffect(() => {
-    if (avatarMode && micAvailable) {
+    if (chatState.avatarMode && chatState.micAvailable) {
       const SpeechRecognitionClass =
         (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognitionClass) {
@@ -71,13 +62,13 @@ export const useHomePage = () => {
         recognition.interimResults = false;
 
         recognition.onstart = () => {
-          setIsListening(true);
+          chatActions.setIsListening(true);
         };
 
         recognition.onresult = (event: any) => {
           const transcript = event.results[0][0].transcript;
-          setInputText(transcript);
-          setIsListening(false);
+          chatActions.setInputText(transcript);
+          chatActions.setIsListening(false);
 
           setTimeout(() => {
             handleSubmit(transcript);
@@ -86,21 +77,21 @@ export const useHomePage = () => {
 
         recognition.onerror = (event: any) => {
           console.error('Speech recognition error:', event.error);
-          setIsListening(false);
+          chatActions.setIsListening(false);
 
           if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
           }
           timeoutRef.current = setTimeout(() => {
-            if (inputText.trim()) {
-              handleSubmit(inputText);
+            if (chatState.inputText.trim()) {
+              handleSubmit(chatState.inputText);
             }
-            setIsListening(false);
+            chatActions.setIsListening(false);
           }, 3000);
         };
 
         recognition.onend = () => {
-          setIsListening(false);
+          chatActions.setIsListening(false);
         };
 
         recognitionRef.current = recognition;
@@ -115,11 +106,11 @@ export const useHomePage = () => {
         recognitionRef.current.stop();
       }
     };
-  }, [avatarMode, micAvailable]);
+  }, [chatState.avatarMode, chatState.micAvailable, chatState.inputText, chatActions]);
 
   // 아바타 모드에서 자동으로 음성 인식 시작
   useEffect(() => {
-    if (avatarMode && micAvailable && recognitionRef.current && !isListening) {
+    if (chatState.avatarMode && chatState.micAvailable && recognitionRef.current && !chatState.isListening) {
       try {
         recognitionRef.current.start();
 
@@ -129,13 +120,13 @@ export const useHomePage = () => {
         timeoutRef.current = setTimeout(() => {
           if (recognitionRef.current) {
             recognitionRef.current.stop();
-            const currentText = inputText;
+            const currentText = chatState.inputText;
             if (currentText.trim()) {
               handleSubmit(currentText);
             } else {
               handleSubmit('');
             }
-            setIsListening(false);
+            chatActions.setIsListening(false);
           }
         }, 3000);
       } catch (error) {
@@ -143,7 +134,7 @@ export const useHomePage = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [avatarMode]);
+  }, [chatState.avatarMode]);
 
   const speakResponse = (text: string) => {
     if ('speechSynthesis' in window) {
@@ -156,28 +147,28 @@ export const useHomePage = () => {
   };
 
   const handleMicClick = useCallback(() => {
-    if (avatarMode) {
+    if (chatState.avatarMode) {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
-      setIsListening(false);
-      setAvatarMode(false);
+      chatActions.setIsListening(false);
+      chatActions.setAvatarMode(false);
     } else {
-      setAvatarMode(true);
+      chatActions.setAvatarMode(true);
     }
-  }, [avatarMode]);
+  }, [chatState.avatarMode, chatActions]);
 
   const handleSubmit = useCallback((text?: string) => {
-    const submitText = text || inputText;
+    const submitText = text || chatState.inputText;
     if (!submitText.trim() && !text) {
       return;
     }
 
-    setLoading(true);
-    setInputText('');
+    chatActions.setLoading(true);
+    chatActions.clearInputText();
 
     setTimeout(() => {
       const today = new Date();
@@ -198,68 +189,27 @@ export const useHomePage = () => {
           : '입력을 저장했습니다.',
       };
 
-      setInteractions(prev => [...prev, newInteraction]);
-      setLoading(false);
+      chatActions.addInteraction(newInteraction);
+      chatActions.setLoading(false);
 
-      if (avatarMode) {
+      if (chatState.avatarMode) {
         speakResponse(newInteraction.aiResponse);
       }
     }, 1000);
-  }, [inputText, avatarMode, interactions]);
+  }, [chatState.inputText, chatState.avatarMode, chatActions]);
 
   // 카테고리 변경 시 뷰 리셋
   useEffect(() => {
-    setDiaryView('home');
-    setAccountView('home');
-    setCultureView('home');
-    setHealthView('home');
-    setPathfinderView('home');
-  }, [currentCategory]);
+    uiActions.resetCategoryViews();
+  }, [uiState.currentCategory, uiActions]);
 
   return {
-    // State
-    sidebarOpen,
-    setSidebarOpen,
-    darkMode,
-    setDarkMode,
-    inputText,
-    setInputText,
-    loading,
-    avatarMode,
-    isListening,
-    micAvailable,
-    interactions,
-    isDragging,
-    setIsDragging,
-    currentCategory,
-    setCurrentCategory,
-    menuItems,
-
-    // 카테고리별 뷰 상태
-    diaryView,
-    setDiaryView,
-    accountView,
-    setAccountView,
-    cultureView,
-    setCultureView,
-    healthView,
-    setHealthView,
-    pathfinderView,
-    setPathfinderView,
-
-    // Calendar 상태
-    selectedDate,
-    setSelectedDate,
-    currentMonth,
-    setCurrentMonth,
-    events,
-    setEvents,
-    todayTasks,
-    setTodayTasks,
-
-    // Handlers
+    // Handlers (복잡한 로직)
     handleMicClick,
     handleSubmit,
+
+    // 상수 데이터
+    menuItems,
   };
 };
 

@@ -65,10 +65,13 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public Messenger findById(TeamModel teamModel) {
-        Optional<Team> entity = teamRepository.findById(teamModel.getId());
+        Long teamId = teamModel.getId();
+        Optional<Team> entity = teamRepository.findById(teamId);
         if (entity.isPresent()) {
-            TeamModel model = entityToModel(entity.get());
+            Team team = entity.get();
+            TeamModel model = entityToModel(team);
             return Messenger.builder()
                     .Code(200)
                     .message("조회 성공")
@@ -98,19 +101,22 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Messenger save(TeamModel teamModel) {
         Team entity = modelToEntity(teamModel);
         Team saved = teamRepository.save(entity);
         TeamModel model = entityToModel(saved);
+        Long savedId = saved.getId();
         return Messenger.builder()
                 .Code(200)
-                .message("저장 성공: " + saved.getId())
+                .message("저장 성공: " + savedId)
                 .data(model)
                 .build();
     }
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Messenger saveAll(List<TeamModel> teamModelList) {
         List<Team> entities = teamModelList.stream()
                 .map(this::modelToEntity)
@@ -125,8 +131,10 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Messenger update(TeamModel teamModel) {
-        Optional<Team> optionalEntity = teamRepository.findById(teamModel.getId());
+        Long teamId = teamModel.getId();
+        Optional<Team> optionalEntity = teamRepository.findById(teamId);
         if (optionalEntity.isPresent()) {
             Team existing = optionalEntity.get();
             Stadium stadium = teamModel.getStadium_uk() != null 
@@ -157,7 +165,7 @@ public class TeamServiceImpl implements TeamService {
             TeamModel model = entityToModel(saved);
             return Messenger.builder()
                     .Code(200)
-                    .message("수정 성공: " + teamModel.getId())
+                    .message("수정 성공: " + teamId)
                     .data(model)
                     .build();
         } else {
@@ -170,13 +178,15 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Messenger delete(TeamModel teamModel) {
-        Optional<Team> optionalEntity = teamRepository.findById(teamModel.getId());
+        Long teamId = teamModel.getId();
+        Optional<Team> optionalEntity = teamRepository.findById(teamId);
         if (optionalEntity.isPresent()) {
-            teamRepository.deleteById(teamModel.getId());
+            teamRepository.deleteById(teamId);
             return Messenger.builder()
                     .Code(200)
-                    .message("삭제 성공: " + teamModel.getId())
+                    .message("삭제 성공: " + teamId)
                     .build();
         } else {
             return Messenger.builder()

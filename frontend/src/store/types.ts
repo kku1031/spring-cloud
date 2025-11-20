@@ -9,6 +9,10 @@
  * - 타입 안정성 보장
  */
 
+import { UiSlice } from "./slices/uiSlice";
+import { ChatSlice } from "./slices/chatSlice";
+import { CalendarSlice } from "./slices/calendarSlice";
+
 // 공통 설정 타입
 export interface AppConfig {
   // TODO: 공통 설정 추가
@@ -16,6 +20,15 @@ export interface AppConfig {
 
 // 전체 스토어 타입 (모든 슬라이스 통합)
 export interface AppStore extends AppConfig {
+  // UI 상태 슬라이스
+  ui: UiSlice;
+  
+  // 채팅 관련 슬라이스
+  chat: ChatSlice;
+  
+  // 캘린더 관련 슬라이스
+  calendar: CalendarSlice;
+  
   // TODO: AI 에이전트 슬라이스들 (5개)
   // agent1: Agent1Slice;
   // agent2: Agent2Slice;
@@ -31,7 +44,4 @@ export interface AppStore extends AppConfig {
   // service5: Service5Slice;
   // service6: Service6Slice;
   // service7: Service7Slice;
-  
-  // TODO: UI 상태 슬라이스 (필요시)
-  // ui: UiSlice;
 }

@@ -1,16 +1,11 @@
 import React, { useEffect, useRef, memo } from 'react';
-import { ChatMessage } from '../molecules';
-import { Interaction } from '../types';
+import { ChatMessage } from '@/components/molecules';
+import { useAppStore } from '@/store/useAppStore';
 
-interface ChatContainerProps {
-  interactions: Interaction[];
-  darkMode?: boolean;
-}
-
-export const ChatContainer: React.FC<ChatContainerProps> = memo(({
-  interactions,
-  darkMode = false,
-}) => {
+export const ChatContainer: React.FC = memo(() => {
+  // Zustand 스토어에서 직접 구독
+  const interactions = useAppStore((state) => state.chat.interactions);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

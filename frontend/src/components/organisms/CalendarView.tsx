@@ -1,31 +1,19 @@
 import React from 'react';
 import { Button, Input } from '../atoms';
-import { Event, Task } from '../types';
-import { getLocalDateStr } from '../../lib';
+import { getLocalDateStr } from '@/lib';
+import { useAppStore } from '@/store/useAppStore';
 
-interface CalendarViewProps {
-  selectedDate: Date;
-  setSelectedDate: (date: Date) => void;
-  currentMonth: Date;
-  setCurrentMonth: (date: Date) => void;
-  events: Event[];
-  setEvents: (events: Event[]) => void;
-  todayTasks: Task[];
-  setTodayTasks: (tasks: Task[]) => void;
-  darkMode?: boolean;
-}
-
-export const CalendarView: React.FC<CalendarViewProps> = ({
-  selectedDate,
-  setSelectedDate,
-  currentMonth,
-  setCurrentMonth,
-  events,
-  setEvents,
-  todayTasks,
-  setTodayTasks,
-  darkMode = false,
-}) => {
+export const CalendarView: React.FC = () => {
+  // Zustand 스토어에서 직접 구독
+  const selectedDate = useAppStore((state) => state.calendar.selectedDate);
+  const setSelectedDate = useAppStore((state) => state.calendar.setSelectedDate);
+  const currentMonth = useAppStore((state) => state.calendar.currentMonth);
+  const setCurrentMonth = useAppStore((state) => state.calendar.setCurrentMonth);
+  const events = useAppStore((state) => state.calendar.events);
+  const setEvents = useAppStore((state) => state.calendar.setEvents);
+  const todayTasks = useAppStore((state) => state.calendar.todayTasks);
+  const setTodayTasks = useAppStore((state) => state.calendar.setTodayTasks);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
   return (
     <div className={`flex-1 overflow-y-auto ${darkMode ? 'bg-gray-900' : 'bg-[#e8e2d5]'}`}>
       <div className="p-6 max-w-6xl mx-auto">

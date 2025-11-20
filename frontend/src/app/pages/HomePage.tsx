@@ -1,126 +1,49 @@
 "use client";
 
 import React, { useMemo } from 'react';
-import { MainLayout } from '../../components/templates/MainLayout';
-import { useHomePage } from '../hooks/useHomePage';
-import { DiaryView } from '../../components/organisms/DiaryView';
-import { CalendarView } from '../../components/organisms/CalendarView';
-import { AccountView } from '../../components/organisms/AccountView';
-import { CultureView } from '../../components/organisms/CultureView';
-import { HealthView } from '../../components/organisms/HealthView';
-import { PathfinderView } from '../../components/organisms/PathfinderView';
+import { MainLayout } from '@/components/templates/MainLayout';
+import { useHomePage } from '@/app/hooks/useHomePage';
+import { DiaryView } from '@/components/organisms/DiaryView';
+import { CalendarView } from '@/components/organisms/CalendarView';
+import { AccountView } from '@/components/organisms/AccountView';
+import { CultureView } from '@/components/organisms/CultureView';
+import { HealthView } from '@/components/organisms/HealthView';
+import { PathfinderView } from '@/components/organisms/PathfinderView';
+import { useAppStore } from '@/store/useAppStore';
 
 export const HomePage: React.FC = () => {
   const hookData = useHomePage();
+  const { handleMicClick, handleSubmit, menuItems } = hookData;
 
-  const {
-    currentCategory,
-    diaryView,
-    setDiaryView,
-    accountView,
-    setAccountView,
-    cultureView,
-    setCultureView,
-    healthView,
-    setHealthView,
-    pathfinderView,
-    setPathfinderView,
-    selectedDate,
-    setSelectedDate,
-    currentMonth,
-    setCurrentMonth,
-    events,
-    setEvents,
-    todayTasks,
-    setTodayTasks,
-    darkMode,
-  } = hookData;
+  // Zustand 스토어에서 직접 구독
+  const currentCategory = useAppStore((state) => state.ui.currentCategory);
 
-  // 카테고리별 컴포넌트를 메모이제이션하여 불필요한 재생성 방지
+  // 카테고리별 컴포넌트 렌더링 (props drilling 제거)
   const categoryContent = useMemo(() => {
     switch (currentCategory) {
       case 'diary':
-        return (
-          <DiaryView
-            diaryView={diaryView}
-            setDiaryView={setDiaryView}
-            darkMode={darkMode}
-          />
-        );
+        return <DiaryView />;
       case 'calendar':
-        return (
-          <CalendarView
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            currentMonth={currentMonth}
-            setCurrentMonth={setCurrentMonth}
-            events={events}
-            setEvents={setEvents}
-            todayTasks={todayTasks}
-            setTodayTasks={setTodayTasks}
-            darkMode={darkMode}
-          />
-        );
+        return <CalendarView />;
       case 'account':
-        return (
-          <AccountView
-            accountView={accountView}
-            setAccountView={setAccountView}
-            darkMode={darkMode}
-          />
-        );
+        return <AccountView />;
       case 'culture':
-        return (
-          <CultureView
-            cultureView={cultureView}
-            setCultureView={setCultureView}
-            darkMode={darkMode}
-          />
-        );
+        return <CultureView />;
       case 'health':
-        return (
-          <HealthView
-            healthView={healthView}
-            setHealthView={setHealthView}
-            darkMode={darkMode}
-          />
-        );
+        return <HealthView />;
       case 'path':
-        return (
-          <PathfinderView
-            pathfinderView={pathfinderView}
-            setPathfinderView={setPathfinderView}
-            darkMode={darkMode}
-          />
-        );
+        return <PathfinderView />;
       default:
         return null;
     }
-  }, [
-    currentCategory,
-    diaryView,
-    setDiaryView,
-    accountView,
-    setAccountView,
-    cultureView,
-    setCultureView,
-    healthView,
-    setHealthView,
-    pathfinderView,
-    setPathfinderView,
-    selectedDate,
-    setSelectedDate,
-    currentMonth,
-    setCurrentMonth,
-    events,
-    setEvents,
-    todayTasks,
-    setTodayTasks,
-    darkMode,
-  ]);
+  }, [currentCategory]);
 
   return (
-    <MainLayout {...hookData}>
+    <MainLayout
+      menuItems={menuItems}
+      handleMicClick={handleMicClick}
+      handleSubmit={handleSubmit}
+    >
       {categoryContent}
     </MainLayout>
   );

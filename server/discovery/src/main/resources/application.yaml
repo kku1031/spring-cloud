@@ -12,9 +12,11 @@ spring:
       import-check:
         enabled: false
     gateway:
+      # API Gateway 라우팅 규칙
+      # 모든 클라이언트 요청은 Gateway를 통해 각 마이크로서비스로 라우팅됩니다.
       routes:
         - id: soccer-service
-          uri: lb://soccer-service
+          uri: lb://soccer-service  # Load Balancer를 통한 서비스 디스커버리
           predicates:
             - Path=/soccer/**
         - id: common-service
@@ -37,6 +39,8 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
+      # CORS 설정 (CorsConfig.java의 CorsWebFilter가 우선 적용됨)
+      # 참고: 실제 CORS 처리는 CorsConfig.java에서 수행됩니다.
       globalcors:
         cors-configurations:
           '[/**]':

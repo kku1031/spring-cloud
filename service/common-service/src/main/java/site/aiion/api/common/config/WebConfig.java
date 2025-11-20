@@ -1,43 +1,18 @@
 package site.aiion.api.common.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * 웹 설정 클래스
- * CORS 설정 및 기타 웹 관련 설정을 포함
+ * 
+ * 주의: CORS 설정은 API Gateway (server/discovery)에서만 처리합니다.
+ * 각 마이크로서비스는 Gateway를 통해서만 접근되므로 개별 CORS 설정이 필요하지 않습니다.
+ * 
+ * Gateway 설정 위치: server/discovery/src/main/resources/application.yaml
+ * Gateway CORS 설정: server/discovery/src/main/java/.../config/CorsConfig.java
  */
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000") // React 개발 서버
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
-    }
-
-    @Bean
-    public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        
-        config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:3000"); // React 개발 서버
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        config.setMaxAge(3600L);
-        
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }
+public class WebConfig {
+    // CORS 설정 제거됨 - API Gateway에서 통합 관리
+    // 모든 클라이언트 요청은 Gateway(8080)를 통해 라우팅됩니다.
 }
-

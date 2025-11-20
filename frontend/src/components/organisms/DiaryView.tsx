@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import { Button, Input } from '../atoms';
 import { DiaryView as DiaryViewType, Diary } from '../types';
+import { useAppStore } from '@/store/useAppStore';
 
-interface DiaryViewProps {
-  diaryView: DiaryViewType;
-  setDiaryView: (view: DiaryViewType) => void;
-  darkMode?: boolean;
-}
-
-export const DiaryView: React.FC<DiaryViewProps> = ({
-  diaryView,
-  setDiaryView,
-  darkMode = false,
-}) => {
+export const DiaryView: React.FC = () => {
+  // Zustand 스토어에서 직접 구독
+  const diaryView = useAppStore((state) => state.ui.diaryView);
+  const setDiaryView = useAppStore((state) => state.ui.setDiaryView);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
   const [diaries, setDiaries] = useState<Diary[]>([]);
   const [selectedDiary, setSelectedDiary] = useState<Diary | null>(null);
   const [newDiaryTitle, setNewDiaryTitle] = useState('');
@@ -35,7 +30,7 @@ export const DiaryView: React.FC<DiaryViewProps> = ({
               </h2>
               <div className="text-gray-900 leading-relaxed text-sm">
                 <p className="text-center text-gray-500 py-4">
-                  {diaries.length === 0 
+                  {diaries.length === 0
                     ? '아직 작성된 일기가 없습니다. 첫 일기를 작성해보세요!'
                     : `총 ${diaries.length}개의 일기가 작성되었습니다.`}
                 </p>
@@ -149,9 +144,8 @@ export const DiaryView: React.FC<DiaryViewProps> = ({
                       <button
                         key={emoji}
                         onClick={() => setSelectedEmotion(emoji)}
-                        className={`text-3xl hover:scale-125 transition-transform ${
-                          selectedEmotion === emoji ? 'scale-125 ring-2 ring-[#8B7355] rounded-full' : ''
-                        }`}
+                        className={`text-3xl hover:scale-125 transition-transform ${selectedEmotion === emoji ? 'scale-125 ring-2 ring-[#8B7355] rounded-full' : ''
+                          }`}
                       >
                         {emoji}
                       </button>

@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '../atoms';
 import { HealthView as HealthViewType } from '../types';
+import { useAppStore } from '@/store/useAppStore';
 
-interface HealthViewProps {
-  healthView: HealthViewType;
-  setHealthView: (view: HealthViewType) => void;
-  darkMode?: boolean;
-}
-
-export const HealthView: React.FC<HealthViewProps> = ({
-  healthView,
-  setHealthView,
-  darkMode = false,
-}) => {
+export const HealthView: React.FC = () => {
+  // Zustand 스토어에서 직접 구독
+  const healthView = useAppStore((state) => state.ui.healthView);
+  const setHealthView = useAppStore((state) => state.ui.setHealthView);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
   const [selectedExerciseCategory, setSelectedExerciseCategory] = useState('');
 
   // Home 뷰

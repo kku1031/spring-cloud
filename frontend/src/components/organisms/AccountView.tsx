@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
 import { Button } from '../atoms';
 import { AccountView as AccountViewType, Transaction } from '../types';
-import { getLocalDateStr } from '../../lib';
+import { getLocalDateStr } from '@/lib';
+import { useAppStore } from '@/store/useAppStore';
 
-interface AccountViewProps {
-  accountView: AccountViewType;
-  setAccountView: (view: AccountViewType) => void;
-  darkMode?: boolean;
-}
-
-export const AccountView: React.FC<AccountViewProps> = ({
-  accountView,
-  setAccountView,
-  darkMode = false,
-}) => {
+export const AccountView: React.FC = () => {
+  // Zustand 스토어에서 직접 구독
+  const accountView = useAppStore((state) => state.ui.accountView);
+  const setAccountView = useAppStore((state) => state.ui.setAccountView);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
   const [transactions] = useState<Transaction[]>([]);
   const [dailySelectedDate, setDailySelectedDate] = useState(new Date());
   const [monthlySelectedMonth, setMonthlySelectedMonth] = useState(new Date());

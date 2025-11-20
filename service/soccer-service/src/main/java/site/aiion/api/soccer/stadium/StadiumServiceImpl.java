@@ -43,10 +43,13 @@ public class StadiumServiceImpl implements StadiumService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public Messenger findById(StadiumModel stadiumModel) {
-        Optional<Stadium> entity = stadiumRepository.findById(stadiumModel.getId());
+        Long stadiumId = stadiumModel.getId();
+        Optional<Stadium> entity = stadiumRepository.findById(stadiumId);
         if (entity.isPresent()) {
-            StadiumModel model = entityToModel(entity.get());
+            Stadium stadium = entity.get();
+            StadiumModel model = entityToModel(stadium);
             return Messenger.builder()
                     .Code(200)
                     .message("조회 성공")
@@ -75,19 +78,22 @@ public class StadiumServiceImpl implements StadiumService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Messenger save(StadiumModel stadiumModel) {
         Stadium entity = modelToEntity(stadiumModel);
         Stadium saved = stadiumRepository.save(entity);
         StadiumModel model = entityToModel(saved);
+        Long savedId = saved.getId();
         return Messenger.builder()
                 .Code(200)
-                .message("저장 성공: " + saved.getId())
+                .message("저장 성공: " + savedId)
                 .data(model)
                 .build();
     }
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Messenger saveAll(List<StadiumModel> stadiumModelList) {
         List<Stadium> entities = stadiumModelList.stream()
                 .map(this::modelToEntity)
@@ -102,8 +108,10 @@ public class StadiumServiceImpl implements StadiumService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Messenger update(StadiumModel stadiumModel) {
-        Optional<Stadium> optionalEntity = stadiumRepository.findById(stadiumModel.getId());
+        Long stadiumId = stadiumModel.getId();
+        Optional<Stadium> optionalEntity = stadiumRepository.findById(stadiumId);
         if (optionalEntity.isPresent()) {
             Stadium existing = optionalEntity.get();
             Stadium updated = Stadium.builder()
@@ -123,7 +131,7 @@ public class StadiumServiceImpl implements StadiumService {
             StadiumModel model = entityToModel(saved);
             return Messenger.builder()
                     .Code(200)
-                    .message("수정 성공: " + stadiumModel.getId())
+                    .message("수정 성공: " + stadiumId)
                     .data(model)
                     .build();
         } else {
@@ -136,13 +144,15 @@ public class StadiumServiceImpl implements StadiumService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public Messenger delete(StadiumModel stadiumModel) {
-        Optional<Stadium> optionalEntity = stadiumRepository.findById(stadiumModel.getId());
+        Long stadiumId = stadiumModel.getId();
+        Optional<Stadium> optionalEntity = stadiumRepository.findById(stadiumId);
         if (optionalEntity.isPresent()) {
-            stadiumRepository.deleteById(stadiumModel.getId());
+            stadiumRepository.deleteById(stadiumId);
             return Messenger.builder()
                     .Code(200)
-                    .message("삭제 성공: " + stadiumModel.getId())
+                    .message("삭제 성공: " + stadiumId)
                     .build();
         } else {
             return Messenger.builder()

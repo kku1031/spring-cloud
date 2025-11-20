@@ -1,28 +1,24 @@
 import React, { useRef, useEffect, memo } from 'react';
 import { Input } from '../atoms';
 import { Icon } from '../atoms';
+import { useAppStore } from '@/store/useAppStore';
 
 interface PromptInputProps {
-  inputText: string;
-  setInputText: (text: string) => void;
-  loading: boolean;
-  avatarMode: boolean;
-  micAvailable: boolean;
   onMicClick: () => void;
   onSubmit: () => void;
-  darkMode?: boolean;
 }
 
 export const PromptInput: React.FC<PromptInputProps> = memo(({
-  inputText,
-  setInputText,
-  loading,
-  avatarMode,
-  micAvailable,
   onMicClick,
   onSubmit,
-  darkMode = false,
 }) => {
+  // Zustand 스토어에서 직접 구독
+  const inputText = useAppStore((state) => state.chat.inputText);
+  const setInputText = useAppStore((state) => state.chat.setInputText);
+  const loading = useAppStore((state) => state.chat.loading);
+  const avatarMode = useAppStore((state) => state.chat.avatarMode);
+  const micAvailable = useAppStore((state) => state.chat.micAvailable);
+  const darkMode = useAppStore((state) => state.ui.darkMode);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
