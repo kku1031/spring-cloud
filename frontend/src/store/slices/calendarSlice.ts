@@ -1,7 +1,11 @@
 import { StateCreator } from "zustand";
 import { AppStore } from "../types";
-import { Event, Task } from "@/components/types";
+import { Event, Task } from "../../components/types";
 
+/**
+ * Calendar (캘린더) 슬라이스
+ * 캘린더 관련 상태 관리
+ */
 export interface CalendarState {
   selectedDate: Date;
   currentMonth: Date;
@@ -13,12 +17,13 @@ export interface CalendarActions {
   setSelectedDate: (date: Date) => void;
   setCurrentMonth: (month: Date) => void;
   setEvents: (events: Event[]) => void;
-  setTodayTasks: (tasks: Task[]) => void;
   addEvent: (event: Event) => void;
-  updateEvent: (id: string, event: Partial<Event>) => void;
-  removeEvent: (id: string) => void;
+  updateEvent: (eventId: string, event: Partial<Event>) => void;
+  deleteEvent: (eventId: string) => void;
+  setTodayTasks: (tasks: Task[]) => void;
   addTask: (task: Task) => void;
-  removeTask: (id: string) => void;
+  deleteTask: (taskId: string) => void;
+  resetCalendar: () => void;
 }
 
 export interface CalendarSlice extends CalendarState, CalendarActions {}
@@ -35,49 +40,67 @@ export const createCalendarSlice: StateCreator<
   events: [],
   todayTasks: [],
 
-  // Actions
+  // 액션
   setSelectedDate: (date) => set((state) => ({
     calendar: { ...state.calendar, selectedDate: date }
   })),
+
   setCurrentMonth: (month) => set((state) => ({
     calendar: { ...state.calendar, currentMonth: month }
   })),
+
   setEvents: (events) => set((state) => ({
     calendar: { ...state.calendar, events }
   })),
-  setTodayTasks: (tasks) => set((state) => ({
-    calendar: { ...state.calendar, todayTasks: tasks }
-  })),
+
   addEvent: (event) => set((state) => ({
     calendar: {
       ...state.calendar,
       events: [...state.calendar.events, event]
     }
   })),
-  updateEvent: (id, partialEvent) => set((state) => ({
+
+  updateEvent: (eventId, updatedEvent) => set((state) => ({
     calendar: {
       ...state.calendar,
       events: state.calendar.events.map(e =>
-        e.id === id ? { ...e, ...partialEvent } : e
+        e.id === eventId ? { ...e, ...updatedEvent } : e
       )
     }
   })),
-  removeEvent: (id) => set((state) => ({
+
+  deleteEvent: (eventId) => set((state) => ({
     calendar: {
       ...state.calendar,
-      events: state.calendar.events.filter(e => e.id !== id)
+      events: state.calendar.events.filter(e => e.id !== eventId)
     }
   })),
+
+  setTodayTasks: (tasks) => set((state) => ({
+    calendar: { ...state.calendar, todayTasks: tasks }
+  })),
+
   addTask: (task) => set((state) => ({
     calendar: {
       ...state.calendar,
       todayTasks: [...state.calendar.todayTasks, task]
     }
   })),
-  removeTask: (id) => set((state) => ({
+
+  deleteTask: (taskId) => set((state) => ({
     calendar: {
       ...state.calendar,
-      todayTasks: state.calendar.todayTasks.filter(t => t.id !== id)
+      todayTasks: state.calendar.todayTasks.filter(t => t.id !== taskId)
+    }
+  })),
+
+  resetCalendar: () => set((state) => ({
+    calendar: {
+      ...state.calendar,
+      selectedDate: new Date(),
+      currentMonth: new Date(),
+      events: [],
+      todayTasks: []
     }
   })),
 });

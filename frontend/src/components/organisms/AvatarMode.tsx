@@ -1,9 +1,10 @@
 import React, { memo } from 'react';
-import { useAppStore } from '@/store/useAppStore';
 
-export const AvatarMode: React.FC = memo(() => {
-  // Zustand 스토어에서 직접 구독
-  const isListening = useAppStore((state) => state.chat.isListening);
+interface AvatarModeProps {
+  isListening: boolean;
+}
+
+export const AvatarMode: React.FC<AvatarModeProps> = memo(({ isListening }) => {
   return (
     <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 relative overflow-hidden">
       {/* Background Pattern */}

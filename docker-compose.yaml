@@ -13,6 +13,22 @@ services:
     networks:
       - spring-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - spring-network
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
   eureka:
     build:
       context: .
@@ -22,7 +38,6 @@ services:
       - "8761:8761"
     networks:
       - spring-network
-
 
   config:
     build:
@@ -48,6 +63,7 @@ services:
       - "8080:8080"
     depends_on:
       - eureka
+      - redis
     networks:
       - spring-network
     environment:
@@ -55,6 +71,8 @@ services:
       - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY=DEBUG
       - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_LOADBALANCER=DEBUG
       - LOGGING_LEVEL_REACTOR_NETTY=DEBUG
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
 
   common-service:
     build:
@@ -66,6 +84,7 @@ services:
     depends_on:
       - postgres
       - eureka
+      - redis
     networks:
       - spring-network
     environment:
@@ -73,6 +92,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=aiion
       - SPRING_DATASOURCE_PASSWORD=aiion4man
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
 
   user-service:
     build:
@@ -84,6 +105,7 @@ services:
     depends_on:
       - postgres
       - eureka
+      - redis
     networks:
       - spring-network
     environment:
@@ -91,6 +113,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=aiion
       - SPRING_DATASOURCE_PASSWORD=aiion4man
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
 
   diary-service:
     build:
@@ -102,6 +126,7 @@ services:
     depends_on:
       - postgres
       - eureka
+      - redis
     networks:
       - spring-network
     environment:
@@ -109,6 +134,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=aiion
       - SPRING_DATASOURCE_PASSWORD=aiion4man
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
 
   calendar-service:
     build:
@@ -120,6 +147,7 @@ services:
     depends_on:
       - postgres
       - eureka
+      - redis
     networks:
       - spring-network
     environment:
@@ -127,6 +155,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=aiion
       - SPRING_DATASOURCE_PASSWORD=aiion4man
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
 
   soccer-service:
     build:
@@ -138,6 +168,7 @@ services:
     depends_on:
       - postgres
       - eureka
+      - redis
     networks:
       - spring-network
     environment:
@@ -145,6 +176,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=aiion
       - SPRING_DATASOURCE_PASSWORD=aiion4man
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
 
   nextjs:
     build:
@@ -167,8 +200,9 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
+
 
 networks:
   spring-network:
     driver: bridge
-

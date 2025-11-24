@@ -5,5 +5,5 @@
  */
 
 // 하위 호환성을 위해 lib에서 re-export
-export { getLocalDateStr, getDayOfWeek } from '@/lib/utils/dateUtils';
+export { getLocalDateStr, getDayOfWeek } from '../../lib/utils/dateUtils';
 

@@ -17,12 +17,15 @@ export interface Event {
   text: string;
   time?: string;
   isAllDay: boolean;
-  notification: boolean;
+  notification?: boolean;
+  alarmOn?: boolean;
 }
 
 export interface Task {
   id: string;
+  date: string;
   text: string;
+  completed?: boolean;
 }
 
 export interface Diary {
@@ -96,12 +99,12 @@ export interface SpeechRecognitionAlternative {
   confidence: number;
 }
 
-declare var SpeechRecognition: {
+declare const SpeechRecognition: {
   prototype: SpeechRecognition;
   new(): SpeechRecognition;
 };
 
-declare var webkitSpeechRecognition: {
+declare const webkitSpeechRecognition: {
   prototype: SpeechRecognition;
   new(): SpeechRecognition;
 };
